@@ -1,0 +1,6 @@
+{
+  "name": "Yuliya Malyshko | Assistente Jurídica em Faro",
+  "description": "Serviços Profissionais de Assistência Jurídica e Relocalização em Faro, Portugal. Apoio em Vistos, Imigração, NIF, NISS, Imobiliário e Representação Administrativa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
