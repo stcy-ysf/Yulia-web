@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Send, Phone, Mail, MapPin, Clock, 
   CheckCircle2, MessageCircle, Linkedin, Globe 
@@ -38,6 +38,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState('');
+  const requestId = useRef(crypto.randomUUID());
 
   useEffect(() => {
     if (initialServiceId) {
@@ -48,15 +50,40 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     }
   }, [initialServiceId, initialMessage]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const companyWebsite = (e.currentTarget as HTMLFormElement).elements.namedItem('companyWebsite') as HTMLInputElement;
     setIsSubmitting(true);
+    setSubmissionError('');
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          requestId: requestId.current,
+          service: services.find((service) => service.id === formData.serviceId)?.title || formData.serviceId,
+          companyWebsite: companyWebsite?.value || '',
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success !== true) {
+        throw new Error('appointment_submission_failed');
+      }
       setSubmitted(true);
       onSuccessSubmit(formData);
-    }, 1000);
+    } catch {
+      const messages = {
+        en: 'We could not send your request right now. Please try again or contact the office directly.',
+        pt: 'Não foi possível enviar o pedido agora. Tente novamente ou contacte diretamente o escritório.',
+        uk: 'Не вдалося надіслати запит. Спробуйте ще раз або зв’яжіться з офісом напряму.',
+        ru: 'Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с офисом напрямую.',
+      };
+      setSubmissionError(messages[language]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -94,7 +121,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   {t.contact.successMsg.replace('{name}', formData.name)}
                 </p>
                 <button
-                  onClick={() => setSubmitted(false)}
+                  onClick={() => {
+                    requestId.current = crypto.randomUUID();
+                    setSubmissionError('');
+                    setSubmitted(false);
+                  }}
                   className="mt-4 inline-flex items-center gap-2 bg-[#2C1E16] text-[#FAF8F5] px-6 py-2.5 rounded-xl text-xs font-medium hover:bg-[#8C6D58] transition-colors"
                 >
                   {t.contact.submitAnother}
@@ -102,6 +133,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+                  <label htmlFor="company-website">Company website</label>
+                  <input id="company-website" name="companyWebsite" type="text" tabIndex={-1} autoComplete="off" />
+                </div>
                 
                 {/* Name & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -210,6 +245,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     </label>
                     <input
                       type="date"
+                      required
+                      min={new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' })}
                       value={formData.preferredDate}
                       onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
                       className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
@@ -222,6 +259,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     </label>
                     <select
                       value={formData.preferredTime}
+                      required
                       onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
                       className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
                     >
@@ -241,12 +279,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </label>
                   <textarea
                     rows={4}
+                    maxLength={1000}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder={t.contact.caseDetailsPlaceholder}
                     className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
                   />
                 </div>
+
+                {submissionError && (
+                  <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    {submissionError}
+                  </p>
+                )}
 
                 {/* Submit Button */}
                 <button

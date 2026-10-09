@@ -71,11 +71,11 @@ const MainApp: React.FC = () => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const handleSuccessSubmit = (booking: AppointmentBooking) => {
+  const handleSuccessSubmit = (_booking: AppointmentBooking) => {
     addToast(
       'success',
       t.contact.successTitle,
-      `Obrigado, ${booking.name}. Responderemos para ${booking.email} no prazo de 24 horas úteis.`
+      t.contact.successMsg
     );
   };
 
