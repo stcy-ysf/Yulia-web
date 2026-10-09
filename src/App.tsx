@@ -7,18 +7,13 @@ import { ServiceDetailModal } from './components/ServiceDetailModal';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
-import { Toast, ToastMessage } from './components/Toast';
-import { LegalService, AppointmentBooking } from './types';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LegalService } from './types';
+import { LanguageProvider } from './context/LanguageContext';
 import { MessageCircle } from 'lucide-react';
 
 const MainApp: React.FC = () => {
-  const { t } = useLanguage();
   const [currentTab, setCurrentTab] = useState<NavTab>('home');
   const [selectedServiceForModal, setSelectedServiceForModal] = useState<LegalService | null>(null);
-  const [bookingServiceId, setBookingServiceId] = useState<string>('consulta-juridica');
-  const [bookingInitialMessage, setBookingInitialMessage] = useState<string>('');
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // Parse initial hash or history
   useEffect(() => {
@@ -57,26 +52,8 @@ const MainApp: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleBookServiceDirect = (serviceId: string) => {
-    setBookingServiceId(serviceId);
+  const handleBookAppointment = () => {
     handleNavigate('contact');
-  };
-
-  const addToast = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    const id = Date.now().toString();
-    setToasts((prev) => [...prev, { id, type, title, message }]);
-  };
-
-  const handleDismissToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  const handleSuccessSubmit = (_booking: AppointmentBooking) => {
-    addToast(
-      'success',
-      t.contact.successTitle,
-      t.contact.successMsg
-    );
   };
 
   return (
@@ -86,17 +63,14 @@ const MainApp: React.FC = () => {
       <Navbar
         currentTab={currentTab}
         onNavigate={handleNavigate}
-        onOpenBooking={(serviceId) => {
-          if (serviceId) setBookingServiceId(serviceId);
-          handleNavigate('contact');
-        }}
+        onOpenBooking={handleBookAppointment}
       />
 
       {/* Main Single Page View Container */}
       <main className="flex-1">
         {currentTab === 'home' && (
           <div className="animate-fade-in">
-            <Hero onNavigate={handleNavigate} />
+            <Hero onBookAppointment={handleBookAppointment} />
             
             {/* Integrated About Me Section directly on Home Page */}
             <AboutSection onNavigate={handleNavigate} />
@@ -107,7 +81,7 @@ const MainApp: React.FC = () => {
           <div className="animate-fade-in">
             <ServicesSection
               onSelectServiceModal={(service) => setSelectedServiceForModal(service)}
-              onBookServiceDirect={handleBookServiceDirect}
+              onBookServiceDirect={handleBookAppointment}
             />
           </div>
         )}
@@ -120,11 +94,7 @@ const MainApp: React.FC = () => {
 
         {currentTab === 'contact' && (
           <div className="animate-fade-in">
-            <ContactSection
-              initialServiceId={bookingServiceId}
-              initialMessage={bookingInitialMessage}
-              onSuccessSubmit={handleSuccessSubmit}
-            />
+            <ContactSection />
           </div>
         )}
       </main>
@@ -153,12 +123,9 @@ const MainApp: React.FC = () => {
         onClose={() => setSelectedServiceForModal(null)}
         onBookService={(serviceId) => {
           setSelectedServiceForModal(null);
-          handleBookServiceDirect(serviceId);
+          handleBookAppointment();
         }}
       />
-
-      {/* Toast Notifications */}
-      <Toast toasts={toasts} onDismiss={handleDismissToast} />
 
     </div>
   );

@@ -1,90 +1,20 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { 
-  Send, Phone, Mail, MapPin, Clock, 
-  CheckCircle2, MessageCircle, Linkedin, Globe 
+import React, { useMemo } from 'react';
+import {
+  Calendar, CheckCircle2, Clock, Mail, MapPin, MessageCircle, Phone,
 } from 'lucide-react';
-import { ATTORNEY_INFO, getAttorneyInfoLocalized, getLocalizedServices } from '../data/legalData';
-import { AppointmentBooking } from '../types';
+import { ATTORNEY_INFO, getAttorneyInfoLocalized } from '../data/legalData';
 import { useLanguage } from '../context/LanguageContext';
+import { getGoogleBookingEmbedUrl } from '../config/booking';
 
 interface ContactSectionProps {
-  initialServiceId?: string;
-  initialMessage?: string;
-  onSuccessSubmit: (booking: AppointmentBooking) => void;
   officeMapPhotoUrl?: string;
 }
 
-export const ContactSection: React.FC<ContactSectionProps> = ({
-  initialServiceId,
-  initialMessage,
-  onSuccessSubmit,
-  officeMapPhotoUrl,
-}) => {
+export const ContactSection: React.FC<ContactSectionProps> = ({ officeMapPhotoUrl }) => {
   const { language, t } = useLanguage();
   const localizedInfo = useMemo(() => getAttorneyInfoLocalized(language), [language]);
-  const services = useMemo(() => getLocalizedServices(language), [language]);
-
   const displayMapPhoto = officeMapPhotoUrl || "https://images.unsplash.com/photo-1548625361-18516086f4a8?q=80&w=800&auto=format&fit=crop";
-  const [formData, setFormData] = useState<AppointmentBooking>({
-    name: '',
-    phone: '',
-    email: '',
-    serviceId: initialServiceId || 'consulta-juridica',
-    mode: 'presencial',
-    preferredDate: '',
-    preferredTime: '10:00',
-    message: initialMessage || '',
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submissionError, setSubmissionError] = useState('');
-  const requestId = useRef(crypto.randomUUID());
-
-  useEffect(() => {
-    if (initialServiceId) {
-      setFormData((prev) => ({ ...prev, serviceId: initialServiceId }));
-    }
-    if (initialMessage) {
-      setFormData((prev) => ({ ...prev, message: initialMessage }));
-    }
-  }, [initialServiceId, initialMessage]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const companyWebsite = (e.currentTarget as HTMLFormElement).elements.namedItem('companyWebsite') as HTMLInputElement;
-    setIsSubmitting(true);
-    setSubmissionError('');
-
-    try {
-      const response = await fetch('/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          requestId: requestId.current,
-          service: services.find((service) => service.id === formData.serviceId)?.title || formData.serviceId,
-          companyWebsite: companyWebsite?.value || '',
-        }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result.success !== true) {
-        throw new Error('appointment_submission_failed');
-      }
-      setSubmitted(true);
-      onSuccessSubmit(formData);
-    } catch {
-      const messages = {
-        en: 'We could not send your request right now. Please try again or contact the office directly.',
-        pt: 'Não foi possível enviar o pedido agora. Tente novamente ou contacte diretamente o escritório.',
-        uk: 'Не вдалося надіслати запит. Спробуйте ще раз або зв’яжіться з офісом напряму.',
-        ru: 'Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с офисом напрямую.',
-      };
-      setSubmissionError(messages[language]);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const bookingUrl = getGoogleBookingEmbedUrl();
 
   return (
     <section id="contactos" className="py-20 md:py-28 bg-[#FAF8F5] relative">
@@ -106,216 +36,41 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* Booking Form (Left / Col 7) */}
-          <div className="lg:col-span-7 bg-white p-6 sm:p-10 rounded-2xl border border-[#EAE3DA] shadow-sm space-y-6">
-            
-            {submitted ? (
-              <div className="text-center py-10 space-y-4 animate-fade-in">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-8 h-8" />
-                </div>
-                <h3 className="font-serif text-2xl font-semibold text-[#2C1E16]">
-                  {t.contact.successTitle}
-                </h3>
-                <p className="text-sm text-[#6B5E55] max-w-md mx-auto leading-relaxed">
-                  {t.contact.successMsg.replace('{name}', formData.name)}
-                </p>
-                <button
-                  onClick={() => {
-                    requestId.current = crypto.randomUUID();
-                    setSubmissionError('');
-                    setSubmitted(false);
-                  }}
-                  className="mt-4 inline-flex items-center gap-2 bg-[#2C1E16] text-[#FAF8F5] px-6 py-2.5 rounded-xl text-xs font-medium hover:bg-[#8C6D58] transition-colors"
-                >
-                  {t.contact.submitAnother}
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-                  <label htmlFor="company-website">Company website</label>
-                  <input id="company-website" name="companyWebsite" type="text" tabIndex={-1} autoComplete="off" />
-                </div>
-                
-                {/* Name & Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#2C1E16]">
-                      {t.contact.fullName}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder={t.contact.fullName}
-                      className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#2C1E16]">
-                      {t.contact.phone}
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="+351 912 345 678"
-                      className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                    />
-                  </div>
-                </div>
-
-                {/* Email & Service */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#2C1E16]">
-                      {t.contact.email}
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="example@email.com"
-                      className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#2C1E16]">
-                      {t.contact.serviceReq}
-                    </label>
-                    <select
-                      value={formData.serviceId}
-                      onChange={(e) => setFormData({ ...formData, serviceId: e.target.value })}
-                      className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                    >
-                      {services.map((srv) => (
-                        <option key={srv.id} value={srv.id}>
-                          {srv.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Mode (In-Person vs Online) */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#2C1E16]">
-                    {t.contact.format}
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, mode: 'presencial' })}
-                      className={`p-3 rounded-xl border text-xs font-medium flex items-center justify-center gap-2 transition-all ${
-                        formData.mode === 'presencial'
-                          ? 'border-[#8C6D58] bg-[#F2EAE1] text-[#2C1E16] font-semibold shadow-xs'
-                          : 'border-[#EAE3DA] bg-[#FAF8F5] text-[#6B5E55] hover:bg-white'
-                      }`}
-                    >
-                      <MapPin className="w-4 h-4 text-[#8C6D58]" />
-                      <span>{t.contact.inPerson}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, mode: 'online' })}
-                      className={`p-3 rounded-xl border text-xs font-medium flex items-center justify-center gap-2 transition-all ${
-                        formData.mode === 'online'
-                          ? 'border-[#8C6D58] bg-[#F2EAE1] text-[#2C1E16] font-semibold shadow-xs'
-                          : 'border-[#EAE3DA] bg-[#FAF8F5] text-[#6B5E55] hover:bg-white'
-                      }`}
-                    >
-                      <Globe className="w-4 h-4 text-[#8C6D58]" />
-                      <span>{t.contact.online}</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Preferred Date & Time */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#2C1E16]">
-                      {t.contact.prefDate}
-                    </label>
-                    <input
-                      type="date"
-                      required
-                      min={new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' })}
-                      value={formData.preferredDate}
-                      onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
-                      className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-[#2C1E16]">
-                      {t.contact.prefTime}
-                    </label>
-                    <select
-                      value={formData.preferredTime}
-                      required
-                      onChange={(e) => setFormData({ ...formData, preferredTime: e.target.value })}
-                      className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                    >
-                      <option value="10:00">10:00</option>
-                      <option value="11:30">11:30</option>
-                      <option value="14:30">14:30</option>
-                      <option value="16:00">16:00</option>
-                      <option value="17:30">17:30</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Message */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-[#2C1E16]">
-                    {t.contact.caseDetails}
-                  </label>
-                  <textarea
-                    rows={4}
-                    maxLength={1000}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder={t.contact.caseDetailsPlaceholder}
-                    className="w-full px-4 py-2.5 text-sm bg-[#FAF8F5] border border-[#EAE3DA] rounded-xl focus:outline-none focus:border-[#8C6D58] text-[#2C1E16]"
-                  />
-                </div>
-
-                {submissionError && (
-                  <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                    {submissionError}
+          {/* Google Calendar's booking page confirms the selected slot and notifies both sides. */}
+          <div className="lg:col-span-7 bg-white rounded-2xl border border-[#EAE3DA] shadow-sm overflow-hidden">
+            {bookingUrl ? (
+              <>
+                <div className="px-6 sm:px-8 py-5 border-b border-[#EAE3DA] bg-[#FAF8F5]">
+                  <p className="flex items-start gap-2.5 text-sm leading-relaxed text-[#6B5E55]">
+                    <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-[#8C6D58]" aria-hidden="true" />
+                    <span>{t.contact.bookingConfirmation}</span>
                   </p>
-                )}
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2 bg-[#2C1E16] hover:bg-[#8C6D58] text-[#FAF8F5] py-3.5 rounded-xl text-base font-medium transition-colors shadow-sm disabled:opacity-70"
-                >
-                  {isSubmitting ? (
-                    <span>{t.contact.submitting}</span>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>{t.contact.submitBtn}</span>
-                    </>
-                  )}
-                </button>
-
-                <p className="text-[11px] text-[#A8988C] text-center font-light pt-1">
-                  🔒 {t.contact.privacyNote}
-                </p>
-
-              </form>
+                </div>
+                <iframe
+                  title="Book an appointment with Yuliya Malyshko"
+                  src={bookingUrl}
+                  className="block w-full min-h-[720px] bg-white"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              </>
+            ) : (
+              <div role="status" className="min-h-80 p-8 sm:p-10 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 rounded-2xl bg-[#F4EFEA] text-[#8C6D58] flex items-center justify-center mb-5">
+                  <Calendar className="w-8 h-8" aria-hidden="true" />
+                </div>
+                <p className="max-w-lg text-sm leading-relaxed text-[#6B5E55]">{t.contact.bookingUnavailable}</p>
+                <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+                  <a className="font-semibold text-[#8C6D58] underline" href={`mailto:${ATTORNEY_INFO.email}`}>
+                    {ATTORNEY_INFO.email}
+                  </a>
+                  <a className="font-semibold text-[#8C6D58] underline" href={`tel:${ATTORNEY_INFO.phone.replace(/\s/g, '')}`}>
+                    {ATTORNEY_INFO.phone}
+                  </a>
+                </div>
+              </div>
             )}
-
           </div>
 
           {/* Office Info & Interactive Faro Map (Right / Col 5) */}

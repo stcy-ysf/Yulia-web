@@ -87,6 +87,8 @@ export interface Translations {
     badge: string;
     heading: string;
     subheading: string;
+    bookingUnavailable: string;
+    bookingConfirmation: string;
     fullName: string;
     phone: string;
     email: string;
@@ -190,7 +192,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       taxCat: "Fiscalidade e NIF",
       searchPlaceholder: "Pesquisar serviço (ex: D7, D8, NIF, Nacionalidade, AIMA)...",
       viewDetails: "Ver Detalhes",
-      requestService: "Solicitar Serviço",
+      requestService: "Agendar uma Consulta",
       noResults: "Nenhum serviço jurídico encontrado para o termo pesquisado.",
       modalScope: "Âmbito do Serviço",
       modalTimeframe: "Prazo Estimado",
@@ -198,7 +200,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       modalDocs: "Documentação Normalmente Necessária",
       modalCompliance: "Todos os processos são preparados com estrito cumprimento da legislação portuguesa e das normas de privacidade de dados.",
       modalClose: "Fechar",
-      modalBook: "Solicitar Este Serviço",
+      modalBook: "Agendar uma Consulta",
     },
     testimonials: {
       badge: "Confiança e Opiniões",
@@ -210,8 +212,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     },
     contact: {
       badge: "Atendimento Personalizado",
-      heading: "Entre em Contacto e Agende uma Consulta",
-      subheading: "Indique a data e o horário que prefere para uma consulta em Faro ou por videochamada. O pedido fica pendente até confirmarmos a disponibilidade.",
+      heading: "Agende uma consulta",
+      subheading: "Escolha um horário disponível e preencha os seus dados para confirmar a consulta.",
+      bookingUnavailable: "A marcação online ainda está a ser preparada. Contacte o escritório por e-mail ou telefone.",
+      bookingConfirmation: "Depois de reservar, você e a Yuliya recebem um e-mail de confirmação com o convite do calendário.",
       fullName: "Nome Completo *",
       phone: "Telefone / WhatsApp *",
       email: "E-mail de Contacto *",
@@ -223,7 +227,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       prefTime: "Horário Preferencial *",
       caseDetails: "Resumo / Detalhes do Caso",
       caseDetailsPlaceholder: "Descreva brevemente o seu objetivo, a sua situação atual ou as suas dúvidas...",
-      submitBtn: "Submeter Pedido de Agendamento",
+      submitBtn: "Ver horários disponíveis",
       submitting: "A Enviar Pedido...",
       successTitle: "Pedido Submetido com Sucesso!",
       successMsg: "Entraremos em contacto para confirmar a data e o horário da sua consulta.",
@@ -314,7 +318,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       taxCat: "Tax & NIF Setup",
       searchPlaceholder: "Search service (e.g., D7, D8, NIF, Citizenship, AIMA)...",
       viewDetails: "View Details",
-      requestService: "Request Service",
+      requestService: "Book a Consultation",
       noResults: "No legal services found matching your search term.",
       modalScope: "Scope of Service",
       modalTimeframe: "Estimated Timeframe",
@@ -322,7 +326,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       modalDocs: "Commonly Required Documents",
       modalCompliance: "All applications are prepared in strict compliance with Portuguese regulations and data privacy laws.",
       modalClose: "Close",
-      modalBook: "Request This Service",
+      modalBook: "Book a Consultation",
     },
     testimonials: {
       badge: "Trust & Client Reviews",
@@ -334,8 +338,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     },
     contact: {
       badge: "Personalized Assistance",
-      heading: "Get in Touch & Book a Consultation",
-      subheading: "Choose a preferred date and time for an in-person meeting in Faro or a video call. Your request remains pending until availability is confirmed.",
+      heading: "Book a consultation",
+      subheading: "Choose an available time and enter your details to book your consultation.",
+      bookingUnavailable: "Online booking is not ready yet. Please email or call the office.",
+      bookingConfirmation: "After you book, you and Yuliya will receive a confirmation email with a calendar invitation.",
       fullName: "Full Name *",
       phone: "Phone / WhatsApp *",
       email: "Contact Email *",
@@ -347,7 +353,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       prefTime: "Preferred Time Slot *",
       caseDetails: "Case Summary / Details",
       caseDetailsPlaceholder: "Briefly describe your objectives, current status, or questions...",
-      submitBtn: "Submit Booking Request",
+      submitBtn: "See available times",
       submitting: "Submitting Request...",
       successTitle: "Request Submitted Successfully!",
       successMsg: "We will get in touch shortly to confirm your consultation time and format.",
@@ -438,7 +444,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       taxCat: "Налоги и NIF",
       searchPlaceholder: "Поиск услуги (напр.: D7, D8, NIF, Гражданство, AIMA)...",
       viewDetails: "Подробнее",
-      requestService: "Заказать услугу",
+      requestService: "Записаться на консультацию",
       noResults: "По вашему запросу услуг не найдено.",
       modalScope: "Описание и объем услуги",
       modalTimeframe: "Ориентировочные сроки",
@@ -446,7 +452,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       modalDocs: "Необходимые документы",
       modalCompliance: "Все дела готовятся в строгом соответствии с португальским законодательством и европейскими стандартами защиты персональных данных.",
       modalClose: "Закрыть",
-      modalBook: "Заказать эту услугу",
+      modalBook: "Записаться на консультацию",
     },
     testimonials: {
       badge: "Доверие клиентов",
@@ -458,8 +464,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     },
     contact: {
       badge: "Индивидуальный подход",
-      heading: "Свяжитесь с нами и запишитесь на консультацию",
-      subheading: "Укажите желаемые дату и время встречи в Фару или видеоконсультации. Заявка останется ожидающей до подтверждения доступности.",
+      heading: "Запишитесь на консультацию",
+      subheading: "Выберите свободное время и укажите свои данные, чтобы записаться на консультацию.",
+      bookingUnavailable: "Онлайн-запись пока настраивается. Напишите или позвоните в офис.",
+      bookingConfirmation: "После записи вы и Юлия получите письмо с подтверждением и приглашением в календарь.",
       fullName: "Полное имя *",
       phone: "Телефон / WhatsApp *",
       email: "Электронная почта *",
@@ -471,7 +479,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       prefTime: "Удобное время *",
       caseDetails: "Краткое описание вопроса",
       caseDetailsPlaceholder: "Кратко опишите вашу ситуацию, цели или вопросы...",
-      submitBtn: "Отправить заявку",
+      submitBtn: "Посмотреть свободное время",
       submitting: "Отправка заявки...",
       successTitle: "Заявка успешно отправлена!",
       successMsg: "Мы свяжемся с вами в ближайшее время для подтверждения даты и времени консультации.",
@@ -562,7 +570,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       taxCat: "Податки та NIF",
       searchPlaceholder: "Пошук послуги (напр.: D7, D8, NIF, Громадянство, AIMA)...",
       viewDetails: "Детальніше",
-      requestService: "Замовити послугу",
+      requestService: "Записатися на консультацію",
       noResults: "За вашим запитом послуг не знайдено.",
       modalScope: "Опис та обсяг послуги",
       modalTimeframe: "Орієнтовний термін",
@@ -570,7 +578,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       modalDocs: "Необхідні документи",
       modalCompliance: "Усі процеси готуються в суворій відповідності до законодавства Португалії та європейських стандартів захисту персональних даних.",
       modalClose: "Закрити",
-      modalBook: "Замовити цю послугу",
+      modalBook: "Записатися на консультацію",
     },
     testimonials: {
       badge: "Довіра та репутація",
@@ -582,8 +590,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     },
     contact: {
       badge: "Індивідуальний підхід",
-      heading: "Зв'яжіться з нами та запишіться на консультацію",
-      subheading: "Вкажіть бажані дату та час зустрічі у Фару або відеоконсультації. Запит очікуватиме підтвердження доступності.",
+      heading: "Запишіться на консультацію",
+      subheading: "Оберіть вільний час і введіть свої дані, щоб записатися на консультацію.",
+      bookingUnavailable: "Онлайн-запис ще налаштовується. Напишіть або зателефонуйте до офісу.",
+      bookingConfirmation: "Після запису ви та Юлія отримаєте лист із підтвердженням і запрошенням у календар.",
       fullName: "Повне ім'я *",
       phone: "Телефон / WhatsApp *",
       email: "Електронна пошта *",
@@ -595,7 +605,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       prefTime: "Зручний час *",
       caseDetails: "Короткий опис справи",
       caseDetailsPlaceholder: "Коротко опишіть вашу мету, поточний статус або запитання...",
-      submitBtn: "Надіслати заявку",
+      submitBtn: "Переглянути вільний час",
       submitting: "Надсилання заявки...",
       successTitle: "Заявку успішно надіслано!",
       successMsg: "Ми зв'яжемося з вами найближчим часом для підтвердження дати та часу консультації.",

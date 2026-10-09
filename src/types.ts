@@ -32,17 +32,6 @@ export interface FaqItem {
   category: 'geral' | 'imigracao' | 'vistos' | 'empresas' | 'fiscal';
 }
 
-export interface AppointmentBooking {
-  name: string;
-  phone: string;
-  email: string;
-  serviceId: string;
-  mode: 'presencial' | 'online';
-  preferredDate: string;
-  preferredTime: string;
-  message: string;
-}
-
 export interface EligibilityResult {
   pathwayName: string;
   suitabilityScore: 'elevada' | 'media' | 'requer_analise';

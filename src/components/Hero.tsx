@@ -4,10 +4,10 @@ import { ATTORNEY_INFO } from '../data/legalData';
 import { useLanguage } from '../context/LanguageContext';
 
 interface HeroProps {
-  onNavigate: (tab: 'home' | 'about' | 'services' | 'testimonials' | 'contact') => void;
+  onBookAppointment: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
+export const Hero: React.FC<HeroProps> = ({ onBookAppointment }) => {
   const displayPhoto = "/portrait.png";
   const { t } = useLanguage();
 
@@ -56,7 +56,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigate }) => {
             {/* Call to Action Buttons */}
             <div className="flex flex-wrap items-center gap-3.5 pt-4 w-full sm:w-auto">
               <button
-                onClick={() => onNavigate('contact')}
+                onClick={onBookAppointment}
                 className="inline-flex items-center justify-center gap-2.5 bg-[#2C1E16] hover:bg-[#8C6D58] text-[#FAF8F5] px-6 py-3.5 rounded-xl text-sm sm:text-base font-medium transition-all shadow-md hover:shadow-lg active:scale-98 group"
               >
                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -9,7 +9,7 @@ export type NavTab = 'home' | 'about' | 'services' | 'testimonials' | 'contact';
 interface NavbarProps {
   currentTab: NavTab;
   onNavigate: (tab: NavTab) => void;
-  onOpenBooking: (serviceId?: string) => void;
+  onOpenBooking: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenBooking }) => {
@@ -151,7 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenBo
 
           {/* Primary CTA */}
           <button
-            onClick={() => handleSelectTab('contact')}
+            onClick={() => onOpenBooking()}
             className="flex items-center gap-2 bg-[#2C1E16] hover:bg-[#8C6D58] text-[#FAF8F5] px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             <Calendar className="w-4 h-4" />
@@ -176,7 +176,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate, onOpenBo
           </button>
 
           <button
-            onClick={() => handleSelectTab('contact')}
+            onClick={() => {
+              onOpenBooking();
+              setMobileMenuOpen(false);
+            }}
             className="bg-[#2C1E16] text-[#FAF8F5] p-2 rounded-xl text-xs font-medium flex items-center justify-center shadow-xs"
             aria-label="Book Consultation"
           >
